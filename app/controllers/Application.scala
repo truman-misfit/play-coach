@@ -39,7 +39,7 @@ class Application extends Controller{
     dataForm.bindFromRequest.fold(
       formWithErrors => Ok("commit error"),
       {
-        mydata => Ok("receive a data:" + mydata.input)
+        myData => Ok("receive a data:" + myData.input)
       }
     )
   }
