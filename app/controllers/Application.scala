@@ -10,6 +10,8 @@ import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
+import actions._
+
 class Application extends Controller{
 
   val dataForm: Form[MyDataForm] = Form{
@@ -20,15 +22,6 @@ class Application extends Controller{
 
   def index = Action {
     Ok(views.html.index(dataForm))
-  }
-  
-  object LoggingAction extends ActionBuilder[Request] {
-    def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
-      Logger.info("Calling action")
-      Logger.info("maybe you want to do more things here")
-      //do more thing
-      block(request)
-    }
   }
   
   def composeAction = LoggingAction {
@@ -45,9 +38,9 @@ class Application extends Controller{
     )
   }
   
-  def calWithSleep(time: Int) : Int= {
-      Thread sleep time
-      time
+  def calWithSleep(time: Int) : Int = {
+    Thread sleep time
+    time
   }
   
   //asyn action,sleep for time microseconds,and then return the time
@@ -55,13 +48,13 @@ class Application extends Controller{
     val futureInt = scala.concurrent.Future { calWithSleep(time) }
     futureInt.map(i => Ok(views.html.AsyncRet(i.toString)))
   }
-  
 
 }
 
 object MyObj
 {
-    def returnHello : String = "hello From my obj"
+  //return to the AsyncRet page
+  def returnHello : String = "hello From my obj"
 }
 
 /*class for the from,I don't know other way to post a request*/

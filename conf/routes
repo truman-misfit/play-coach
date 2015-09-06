@@ -8,6 +8,9 @@ GET     /composeAction              controllers.Application.composeAction
 POST    /postData                   controllers.Application.postData
 GET     /helloSecondController      controllers.SecondController.hello
 GET     /asynAct                    controllers.Application.asynAct(time :Int ?=1000)
-
+GET     /json                       controllers.JsonController.getJsonValue
+GET     /addName/:name/:age         controllers.JsonController.addName(name: String ,age: Int)
+GET     /parseStr                   controllers.JsonController.parseStr
+ 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
