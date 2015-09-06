@@ -20,11 +20,23 @@ class JsonController extends Controller{
   )
   
   def getJsonValue = Action{
-    val keyVal = (parsedJsonValue \ "key2").asOpt[String]
-    keyVal match{
-      case Some(jsval) => Ok("ret is " + jsval)
-      case None => Ok("can not get key")
+    var retStr = ""
+    
+    //null field
+    val firstVal = (parsedJsonValue \ "key1").asOpt[String]
+    firstVal match{
+      case Some(jsval) => retStr += "ret is " + jsval + "for key1"
+      case None => retStr += "can not get value for key1"
     }
+    retStr += "\n"
+    
+    //not null field
+    val secondVal = (parsedJsonValue \ "key").asOpt[String]
+    secondVal match{
+      case Some(jsval) => retStr += "ret is " + jsval + "for key"
+      case None => retStr += "can not get value for key"
+    }
+    Ok(retStr)
   }
   
   var nameList :List[NameRecord] = Nil
@@ -38,8 +50,6 @@ class JsonController extends Controller{
   }
   
   def parseStr = Action{request =>
-    
-    
     Ok(NameRecord.parseJsonValueIntoNameRecord(jsString))
       
   }
