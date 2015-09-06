@@ -53,8 +53,15 @@ class Application extends Controller{
   //asyn action,sleep for time microseconds,and then return the time
   def asynAct(time: Int) = Action.async {request =>
     val futureInt = scala.concurrent.Future { calWithSleep(time) }
-    futureInt.map(i => Ok("Got result: " + i))
+    futureInt.map(i => Ok(views.html.AsyncRet(i.toString)))
   }
+  
+
+}
+
+object MyObj
+{
+    def returnHello : String = "hello From my obj"
 }
 
 /*class for the from,I don't know other way to post a request*/
