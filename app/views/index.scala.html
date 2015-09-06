@@ -1,7 +1,13 @@
-@(message: String)
+
+@(myForm :Form[MyDataForm])(implicit messages: Messages)
+
+@import helper._
 
 @main("Welcome to Play") {
-
-    @play20.welcome(message)
-
+    @helper.form(action = routes.Application.postData()) {
+      @helper.inputText(myForm("data"))
+      <div class="buttons">
+      <input type="submit" value="TestPost"/>
+      </div>
+    }
 }
