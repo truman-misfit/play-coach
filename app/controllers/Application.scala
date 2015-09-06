@@ -8,6 +8,7 @@ import play.api.data.Forms._
 import play.api.i18n._
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 class Application extends Controller{
 
@@ -43,6 +44,24 @@ class Application extends Controller{
       }
     )
   }
+  
+  def calWithSleep(time: Int) : Int= {
+      Thread sleep time
+      time
+  }
+  
+  //asyn action,sleep for time microseconds,and then return the time
+  def asynAct(time: Int) = Action.async {request =>
+    val futureInt = scala.concurrent.Future { calWithSleep(time) }
+    futureInt.map(i => Ok(views.html.AsyncRet(i.toString)))
+  }
+  
+
+}
+
+object MyObj
+{
+    def returnHello : String = "hello From my obj"
 }
 
 /*class for the from,I don't know other way to post a request*/
