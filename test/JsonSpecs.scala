@@ -21,12 +21,12 @@ class JsonSpecs extends Specification {
     "return OK" in new WithApplication{
       val json : JsValue = Json.parse("""
       [
-        {"name":"john","age":90}
+        {"name":"john","age":20}
       ]
         
       """
       )
-      val request = FakeRequest(POST, "/nameList").withJsonBody(json)
+      val request = FakeRequest(POST, "/names").withJsonBody(json)
       val home = route(request).get
       status(home) must equalTo(OK)
       contentAsString(home) must contain ("john")
@@ -40,7 +40,7 @@ class JsonSpecs extends Specification {
         
       """
       )
-      val request = FakeRequest(POST, "/nameList").withJsonBody(json)
+      val request = FakeRequest(POST, "/names").withJsonBody(json)
       val home = route(request).get
       status(home) must equalTo(OK)
       contentAsString(home) must contain ("List is empty,may get error")
@@ -54,7 +54,35 @@ class JsonSpecs extends Specification {
         
       """
       )
-      val request = FakeRequest(POST, "/nameList").withJsonBody(json)
+      val request = FakeRequest(POST, "/names").withJsonBody(json)
+      val home = route(request).get
+      status(home) must equalTo(OK)
+      contentAsString(home) must contain ("List is empty,may get error")
+    }
+    
+    "return error because name is empty" in  new WithApplication{
+      val json : JsValue = Json.parse("""
+      [
+        {"name":"","age":20}
+      ]
+        
+      """
+      )
+      val request = FakeRequest(POST, "/names").withJsonBody(json)
+      val home = route(request).get
+      status(home) must equalTo(OK)
+      contentAsString(home) must contain ("List is empty,may get error")
+    }
+    
+    "return error because name is too long" in  new WithApplication{
+      val json : JsValue = Json.parse("""
+      [
+        {"name":"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz","age":20}
+      ]
+        
+      """
+      )
+      val request = FakeRequest(POST, "/names").withJsonBody(json)
       val home = route(request).get
       status(home) must equalTo(OK)
       contentAsString(home) must contain ("List is empty,may get error")
