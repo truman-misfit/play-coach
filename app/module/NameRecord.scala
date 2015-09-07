@@ -27,10 +27,17 @@ object NameRecord{
   def parseJsonValueIntoNameRecord(jsString: String) = {
     var retStr = ""
     val myList = parseJsonValueIntoNameRecordList(jsString)
-    myList.foreach(jsrecord => {
-      retStr += ("name :" + jsrecord.name + " age:" + jsrecord.age + "\n")
-    })
-    
+    if(myList.length == 0)
+    {
+      retStr = "List is empty,may get error"
+    }
+    else
+    {
+      myList.foreach(jsrecord => {
+        retStr += ("name :" + jsrecord.name + " age:" + jsrecord.age + "\n")
+      })
+    }
+   
     retStr
   }
   
