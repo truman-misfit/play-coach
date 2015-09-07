@@ -4,6 +4,7 @@ import play.api.libs.json._
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.Logger
 
 case class NameRecord(name: String, age: Int)
 {
@@ -35,7 +36,7 @@ object NameRecord{
           retStr += ("name :" + jsrecord.name + " age:" + jsrecord.age + "\n")
         })
       }
-        case e: JsError => println("Errors")
+        case e: JsError => Logger("Errors")
     }
     retStr
   }

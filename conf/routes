@@ -5,9 +5,9 @@
 # Home page
 GET     /                           controllers.Application.index
 GET     /composeAction              controllers.Application.composeAction
-POST    /postData                   controllers.Application.postData
-GET     /helloSecondController      controllers.SecondController.hello
-GET     /asynAct                    controllers.Application.asynAct(time :Int ?=1000)
+POST    /str                        controllers.Application.postData
+GET     /async                      controllers.AsyncController.hello
+GET     /asynAction                 controllers.AsyncController.asynAct(time :Int ?=1000)
 GET     /json                       controllers.JsonController.getJsonValue
 GET     /addName/:name/:age         controllers.JsonController.addName(name: String ,age: Int)
 GET     /parseStr                   controllers.JsonController.parseStr
