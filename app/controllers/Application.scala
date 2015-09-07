@@ -10,6 +10,8 @@ import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
+import actions._
+
 class Application extends Controller{
 
   val dataForm: Form[MyDataForm] = Form{
@@ -22,21 +24,12 @@ class Application extends Controller{
     Ok(views.html.index(dataForm))
   }
   
-  object LoggingAction extends ActionBuilder[Request] {
-    def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
-      Logger.info("Calling action")
-      Logger.info("maybe you want to do more things here")
-      //do more thing
-      block(request)
-    }
-  }
-  
   def composeAction = LoggingAction {
       Ok("This is a compose Action,you just write a log")
   }
 
   def postData = Action { implicit request =>
-    println("request is :" + request.toString)
+    Logger.debug("request is :" + request.toString)
     dataForm.bindFromRequest.fold(
       formWithErrors => Ok("commit error"),
       {
@@ -45,23 +38,14 @@ class Application extends Controller{
     )
   }
   
-  def calWithSleep(time: Int) : Int= {
-      Thread sleep time
-      time
-  }
-  
-  //asyn action,sleep for time microseconds,and then return the time
-  def asynAct(time: Int) = Action.async {request =>
-    val futureInt = scala.concurrent.Future { calWithSleep(time) }
-    futureInt.map(i => Ok(views.html.AsyncRet(i.toString)))
-  }
   
 
 }
 
 object MyObj
 {
-    def returnHello : String = "hello From my obj"
+  //return to the AsyncRet page
+  def returnHello : String = "hello From my obj"
 }
 
 /*class for the from,I don't know other way to post a request*/
