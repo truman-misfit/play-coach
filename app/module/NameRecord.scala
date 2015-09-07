@@ -36,8 +36,10 @@ object NameRecord{
           retStr += ("name :" + jsrecord.name + " age:" + jsrecord.age + "\n")
         })
       }
-        case e: JsError => Logger("Errors")
+        case e: JsError => Logger.error("Errors")
     }
     retStr
   }
+  
+  def listToJson(nameList:List[NameRecord]) = Json.toJson(nameList)
 }

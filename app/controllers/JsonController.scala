@@ -6,6 +6,7 @@ import play.api.libs.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import module._
+import play.api.Logger
 
 class JsonController extends Controller{
   val parsedJsonValue = Json.parse("""
@@ -54,6 +55,12 @@ class JsonController extends Controller{
       
   }
   
-  
+  def httpJsonReq = Action {request =>
+      val json = request.body.asJson.get
+      
+    //   Logger.debug("hello")
+      Logger.debug(json.toString)
+      Ok("copy")
+  }
 
 }

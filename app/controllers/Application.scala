@@ -29,7 +29,7 @@ class Application extends Controller{
   }
 
   def postData = Action { implicit request =>
-    Logger("request is :" + request.toString)
+    Logger.debug("request is :" + request.toString)
     dataForm.bindFromRequest.fold(
       formWithErrors => Ok("commit error"),
       {
