@@ -4,6 +4,7 @@ import org.junit.runner._
 
 import play.api.test._
 import play.api.test.Helpers._
+import org.specs2.mock._
 
 import controllers._
 /**
@@ -12,7 +13,7 @@ import controllers._
  * For more information, consult the wiki.
  */
 @RunWith(classOf[JUnitRunner])
-class AsyncActionSpecs extends Specification {
+class AsyncActionSpecs extends Specification with Mockito{
 
   "AsyncAction" should {
     "return in 1 second" in new WithApplication{
@@ -20,6 +21,23 @@ class AsyncActionSpecs extends Specification {
 
       status(home) must equalTo(OK)
       contentAsString(home) must contain ("Sleep for")  
+    }
+    
+    "return 10" in new WithApplication {
+      val mockLongTimeCal = mock[LongTimeCal]
+      mockLongTimeCal.calWithSleep(1) returns 10
+      
+      //The following is compileable ,too.But this means another method,
+      //so when you call myController.getReturn(1),the mock object can get nothing,so return in 0
+      
+      //mockLongTimeCal.calWithSleep(_:Int) returns 10
+      
+      val myController = new AsyncController() {
+        override val longTimeCalculator = mockLongTimeCal
+      }
+      
+      val actual = myController.getReturn(1)
+      actual must equalTo(10)
     }
   }
 }

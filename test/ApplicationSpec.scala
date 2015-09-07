@@ -4,6 +4,7 @@ import org.junit.runner._
 
 import play.api.test._
 import play.api.test.Helpers._
+import java.util._
 
 import controllers._
 /**
@@ -12,7 +13,7 @@ import controllers._
  * For more information, consult the wiki.
  */
 @RunWith(classOf[JUnitRunner])
-class ApplicationSpec extends Specification {
+class ApplicationSpec extends Specification{
 
   "Application" should {
 
