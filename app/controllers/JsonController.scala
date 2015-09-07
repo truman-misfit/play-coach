@@ -5,7 +5,7 @@ import play.api.libs.json._
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import module._
+import json_module._
 import play.api.Logger
 
 class JsonController extends Controller{

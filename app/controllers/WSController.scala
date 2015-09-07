@@ -4,7 +4,7 @@ import scala.concurrent.Future
 
 import play.api.mvc._
 import play.api.libs.ws._
-import module._
+import json_module._
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.Logger
 
@@ -26,7 +26,12 @@ class WSController @Inject() (ws: WSClient) extends Controller {
   }
 }
 
-class MockTestObj{
+class MockTestRootClass{
+  val testObj = new MockTestObjClass()
+  def get = testObj.getSize
+}
+
+class MockTestObjClass{
   val size: Int = 10
   def getSize = size
 }

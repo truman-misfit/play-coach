@@ -8,11 +8,15 @@ import controllers._
 
 class ExampleMockitoSpec extends PlaySpec with MockitoSugar{
   "WS Controller" should{
-    "return a list if " in {
-      val mockTestObj = mock[MockTestObj]
+    "return 20 ,not 10 as the return of get " in {
+      val mockTestObj = mock[MockTestObjClass]
       when(mockTestObj.getSize) thenReturn 20
-
-      val actual = mockTestObj.getSize
+      
+      val testObj = new MockTestRootClass{
+          override val testObj = mockTestObj
+      }
+      
+      val actual = testObj.get
       actual mustBe 20
     }
   } 
