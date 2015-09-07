@@ -56,11 +56,12 @@ class JsonController extends Controller{
   }
   
   def httpJsonReq = Action {request =>
-      val json = request.body.asJson.get
-      
+      val json = request.body.asJson.get    //JsValue
+      Logger.debug(request.body.toString)
     //   Logger.debug("hello")
       Logger.debug(json.toString)
-      Ok("copy")
+
+      Ok(NameRecord.parseJsonValueIntoNameRecord(json.toString))
   }
 
 }

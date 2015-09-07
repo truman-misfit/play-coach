@@ -22,24 +22,35 @@ object NameRecord{
     (JsPath \ "age").read[Int](min(0) keepAnd max(121))
   )(NameRecord.apply _)
   
-  def listToString(nameList:List[NameRecord]) = Json.toJson(nameList).toString
+  def listToString(nameList:List[NameRecord]) = listToJson(nameList).toString
     
   def parseJsonValueIntoNameRecord(jsString: String) = {
-    val json = Json.parse(jsString)
-    val jsonList = json.validate[List[NameRecord]]
     var retStr = ""
-    jsonList match {
-      case success: JsSuccess[List[NameRecord]] => 
-      {
-        val myList = success.get
-        myList.foreach(jsrecord => {
-          retStr += ("name :" + jsrecord.name + " age:" + jsrecord.age + "\n")
-        })
-      }
-        case e: JsError => Logger.error("Errors")
-    }
+    val myList = parseJsonValueIntoNameRecordList(jsString)
+    myList.foreach(jsrecord => {
+      retStr += ("name :" + jsrecord.name + " age:" + jsrecord.age + "\n")
+    })
+    
     retStr
   }
   
   def listToJson(nameList:List[NameRecord]) = Json.toJson(nameList)
+  
+  def parseJsonValueIntoNameRecordList(jsString: String) : List[NameRecord] =
+  {
+    val json = Json.parse(jsString)
+    val jsonList = json.validate[List[NameRecord]]
+    var myList : List[NameRecord] = Nil
+    jsonList match {
+      case success: JsSuccess[List[NameRecord]] => 
+      {
+        myList = success.get
+      }
+      case e: JsError => 
+      {
+        Logger.error("Errors")
+      }
+    }
+    myList
+  }
 }
