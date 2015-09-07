@@ -6,10 +6,7 @@ import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 class AsyncController extends Controller{
-  def hello = Action { request =>
-    Ok("hello")
-  }
-
+    
   def calWithSleep(time: Int) : Int = {
     Thread sleep time
     time
