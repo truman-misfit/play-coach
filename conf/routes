@@ -11,7 +11,7 @@ GET     /json                       controllers.JsonController.getJsonValue
 GET     /addName/:name/:age         controllers.JsonController.addName(name: String ,age: Int)
 GET     /parseStr                   controllers.JsonController.parseStr
 GET     /jsonInHttp                 controllers.WSController.sendJsonRequest
-POST    /nameList                   controllers.JsonController.httpJsonReq
+POST    /names                      controllers.JsonController.httpJsonReq
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

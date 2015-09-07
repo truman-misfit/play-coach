@@ -4,6 +4,7 @@
 @import helper._
 
 @main("Welcome to Play") {
+    <h1>Your new application is ready.</h1>
     @helper.form(action = routes.Application.postData()) {
       @helper.inputText(myForm("data"))
       <div class="buttons">
