@@ -55,7 +55,7 @@ object NameRecord{
       }
       case e: JsError => 
       {
-        Logger.error("Errors")
+        Logger.error("Get Error when trying to read name record list")
       }
     }
     myList

@@ -25,13 +25,3 @@ class WSController @Inject() (ws: WSClient) extends Controller {
     }
   }
 }
-
-class MockTestRootClass{
-  val testObj = new MockTestObjClass()
-  def get = testObj.getSize
-}
-
-class MockTestObjClass{
-  val size: Int = 10
-  def getSize = size
-}

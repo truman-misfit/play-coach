@@ -37,8 +37,6 @@ class Application extends Controller{
       }
     )
   }
-  
-  
 
 }
 
