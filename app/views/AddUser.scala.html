@@ -1,0 +1,15 @@
+@import data_model._
+@(myForm :Form[NameRecord])(implicit messages: Messages)
+
+@import helper._
+
+@main("Add User"){
+    @helper.form(action = routes.UserDataController.addUser()) {
+      @helper.inputText(myForm("Name"))
+      @helper.inputText(myForm("Age"))
+      <div class="buttons" >
+      <input type="submit" id = "up" value="Add User"/>
+      </div>
+    }
+
+}
