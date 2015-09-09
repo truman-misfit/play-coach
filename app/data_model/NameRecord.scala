@@ -19,4 +19,12 @@ object NameRecord
         })
         throw new IllegalArgumentException
     }
+    
+    def getAllUser:String = {
+        var ret = ""
+        nameRecordList foreach(record =>{
+            ret += "Name:" + record.name + " ,age:" + record.age + "\n"
+        })
+        ret
+    }
 }

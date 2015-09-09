@@ -21,8 +21,7 @@ change the value of 'fork in run' to false in build.sbt:
 # Tutorial
 - step1:
 In this step, we need to know how Play framework work with action.We add a simple GET action to get user list, add a form page to add user, and an action to handle post data, and finally we add a LoggingAction to log all request
-
-
+See README_step1.md for further info.
 
 # Usage
 1 Enter this project
