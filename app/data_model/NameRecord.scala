@@ -25,6 +25,7 @@ object NameRecord
         nameRecordList foreach(record =>{
             ret += "Name:" + record.name + " ,age:" + record.age + "\n"
         })
+        //Thread sleep 5000
         ret
     }
 }

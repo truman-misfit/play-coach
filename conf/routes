@@ -4,8 +4,11 @@
 
 # Home page
 GET     /                           controllers.Application.index
+GET     /users                      controllers.UserDataController.getUsers
+GET     /user                       controllers.UserDataController.getUser(name:Option[String])
+POST    /user                       controllers.UserDataController.addUser
 
-
+GET     /addUser                    controllers.UserDataController.addUserPage
 
 
 # Map static resources from the /public folder to the /assets URL path

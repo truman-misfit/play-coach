@@ -23,8 +23,16 @@ change the value of 'fork in run' to false in build.sbt:
 In this step, we need to know how Play framework work with action.We add a simple GET action to get user list, add a form page to add user, and an action to handle post data, and finally we add a LoggingAction to log all request
 See README_step1.md for further info.
 
+- step2:
+It may takes a long time to get all users' data if you have a lot of user, we add an async action in this step, to get all users' data
+In this step, we add an async action to handle long time calculation.Besides,we use a template to show the result.
+
 # Usage
 1 Enter this project
 2 run `./activator run`
 3 If you wanna use other port then 9000, use `./activator run -Dhttp.port=1234` instead.
 4 If you wanna test this project, run `./activator test`
+5 Don't forget to run test after each step.
+
+# Future
+Save server data in a json file so I can load it at next time when the server is started.
