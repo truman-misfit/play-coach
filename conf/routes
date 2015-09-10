@@ -9,6 +9,7 @@ GET     /user                       controllers.UserDataController.getUser(name:
 POST    /user                       controllers.UserDataController.addUser
 
 GET     /addUser                    controllers.UserDataController.addUserPage
+GET     /users/async                controllers.AsyncUserDataController.getUserData
 
 
 # Map static resources from the /public folder to the /assets URL path

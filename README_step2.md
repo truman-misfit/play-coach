@@ -1,5 +1,5 @@
 # guide for step 2
-Now let's reset our project to setp1:
+Now let's reset our project to setp2:
 `git checkout step2`
 
 # 1 Add a new controller to handle async request

@@ -16,12 +16,12 @@ import actions._
 class UserDataController extends Controller {
 
 //init a user data form ,to accept data from AddUser.html    
-  val userDataForm: Form[NameRecord] = Form{
+  val userDataForm: Form[NameRecord] = Form(
     mapping(
       "Name" -> nonEmptyText,                       //name can not be empty
-      "Age" -> number.verifying(min(0), max(140))   //age is between 0 and 140
+      "Age" -> number.verifying(min(0), max(140)),   //age is between 0 and 140
     )(NameRecord.apply)(NameRecord.unapply)
-  }
+  )
 
 //use default Action
   def getUsers = Action{
@@ -65,7 +65,7 @@ class UserDataController extends Controller {
       //if all goes well
       {
         myData => {
-            NameRecord.addName(myData.name,myData.age)
+            NameRecord.addName(myData.name,myData.age,myData.mail,myData.tel,myData.gender)
             Ok("receive a user,name:" + myData.name + " age:" + myData.age)
         }
       }

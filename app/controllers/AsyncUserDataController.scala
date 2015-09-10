@@ -18,7 +18,19 @@ import actions._
 class AsyncUserDataController extends Controller {
     
     def getUserData = Action.async{
-        
-    }
+        Logger.info("Before Future calculation")
+        //create a future
+        val futureRet = scala.concurrent.Future { 
+            Logger.info("In Future calculation")
+            val ret = NameRecord.getAllUser 
+            Logger.info("After Future calculation")
+            ret
+        }
+        Logger.info("Out of the future")
     
+        //get the result from the future
+        futureRet.map(
+            {ret => Ok(views.html.AllUser(ret))
+        })
+    }
 }

@@ -27,6 +27,11 @@ See README_step1.md for further info.
 It may takes a long time to get all users' data if you have a lot of user, we add an async action in this step, to get all users' data
 In this step, we add an async action to handle long time calculation.Besides,we use a template to show the result.
 
+- step3:
+A user can have more data ,so NameRecrod with only name and age is not enought for us.Let's make it more complex.
+A Server should not lost user's data when it is shut down.We use json to save data on server,and load it when the server is on again.
+
+
 # Usage
 1 Enter this project
 2 run `./activator run`

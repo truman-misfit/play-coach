@@ -1,6 +1,6 @@
 name := """play-coach-sampe"""
 
-version := "1.3.0"
+version := "1.4.0"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 

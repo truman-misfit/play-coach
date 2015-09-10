@@ -1,6 +1,10 @@
 @(allUserStr:String)
 @import data_model._
 @main("All user"){
+    <h1>Now we show all users here: </h1>
+    <h5>@allUserStr</h5>
+    <H1>Default user is : </H1>
 
+    <H5>Tom, @NameRecord.getUser("Tom")</H5>
 
 }

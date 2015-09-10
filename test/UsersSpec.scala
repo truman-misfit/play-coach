@@ -52,6 +52,10 @@ class UsersSpec extends Specification {
       
       browser.fill("#Name").`with`("Max")
       browser.fill("#Age").`with`("10")
+      browser.fill("#Tel").`with`("123456")
+      browser.fill("#Gender").`with`("male")
+      browser.fill("#Mail").`with`("Longlon@123.com")
+      
       browser.submit("#up")
       browser.pageSource must contain("receive a user,name:Max age:10")
       
