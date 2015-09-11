@@ -28,9 +28,5 @@ class ApplicationSpec extends Specification{
       contentType(home) must beSome.which(_ == "text/html")
       contentAsString(home) must contain ("Your new application is ready.")
     }
-    
-    "return certain str" in new WithApplication{
-      MyObj.returnHello must equalTo("hello From my obj")
-    }
   }
 }
