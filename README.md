@@ -40,4 +40,4 @@ A Server should not lost user's data when it is shut down.We use json to save da
 5 Don't forget to run test after each step.
 
 # Future
-Save server data in a json file so I can load it at next time when the server is started.
+List is not so good for user data record, change to map
