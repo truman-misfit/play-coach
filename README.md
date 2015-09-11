@@ -26,10 +26,12 @@ See README_step1.md for further info.
 - step2:
 It may takes a long time to get all users' data if you have a lot of user, we add an async action in this step, to get all users' data
 In this step, we add an async action to handle long time calculation.Besides,we use a template to show the result.
+See README_step2.md for further info.
 
 - step3:
 A user can have more data ,so NameRecrod with only name and age is not enought for us.Let's make it more complex.
 A Server should not lost user's data when it is shut down.We use json to save data on server,and load it when the server is on again.
+See README_step3.md for further info. ^_^
 
 
 # Usage
@@ -40,4 +42,4 @@ A Server should not lost user's data when it is shut down.We use json to save da
 5 Don't forget to run test after each step.
 
 # Future
-Save server data in a json file so I can load it at next time when the server is started.
+List is not so good for user data set, change it to a map or something else.

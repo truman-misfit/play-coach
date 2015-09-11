@@ -1,4 +1,10 @@
 language: scala
+jdk:
+- oraclejdk8
 scala:
-   - 2.11.6
-script: sbt test
+- 2.11.6
+script:
+- sbt test
+env:
+  global:
+    secure: mLLa10TCh/OGtlDTBk2+F6gcoMQYe8gism3RSt1LQFD9yFmKBbpZwMk1BMQGTbAIC+N9siDWf56rLs7LuLB0FFdM08c35f13hwkXPgZWzgy/W5sheR2sQTuYNxpozbLAiDj7LArbSDL/GjHifhJCAxgy8UeZybS5IfBKsXoR7QL6JtFGkP7koy+GHzcLw6p+ly+7WKf1qql7bJ+8VBHA+apkb74yFe+1+3u25j5b3VhsVx1d1dD8/1Le9vmCudFwHKmX/sjVxzP/jXuqzLlCwZRqMGpIF79xf5KYhJEzWbxhS93q1HJVLkTRdgJOiF2XvNEIGERmXJpMtAmUfcq5402AW/28x2ti6iI62+OhoLERtN0K31bOzQqlysCO2n3hYlyv/M7HRjxqyvk9/69wI4p5OfOFgfrBmOVhwG+EWs+PPIP1RcvfwcLVwGKN181sEiYQLpEb5sWMENFOu12CJbF4HUpGpAafUPgUZYwbYOW0ixjoQro4XAtc2+2WVJgi0BvPi3wRgzzWUJmCZq+FcfYbjQ0JVq3zu0nW7v8TdrT76hiWUy99HgvkQqTXtHNibj3x4wPJD/YfMya5DIY5VQoriySZ7ZoImMuSq6UgagvdcywVNoTHYCobs10SSl/mA0whC0w9m4kZaeY58N4BxHdTKQtz/+JDK3orJVVKGU4=
