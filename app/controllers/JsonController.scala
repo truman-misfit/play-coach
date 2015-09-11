@@ -21,10 +21,22 @@ import play.api.libs.functional.syntax._ // Combinator syntax
 import actions._
 class JsonController extends Controller {
     def getJson = LoggingAction{
-    
+        Ok(NameRecord.toJson.toString)
     }
     
     def recvJson = LoggingAction{ request =>
-       
+        Logger.info(request.body.toString)
+        val json = request.body.asJson.get.validate[NameRecord]
+            
+        json match{
+            case j : JsSuccess[NameRecord] => {
+                val ret = j.get
+                NameRecord.addName(ret.name,ret.age,ret.mail,ret.tel,ret.gender)
+                Ok("copy")
+            }
+            case e: JsError => {
+                Ok("data error!Can not add")
+            }
+        }
     }
 }

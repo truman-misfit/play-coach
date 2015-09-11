@@ -19,7 +19,7 @@ import data_model._
 @RunWith(classOf[JUnitRunner])
 class JSONSpecs extends Specification {
     "Json" should {
-        "Get all user data" in WithApplication{
+        "Get all user data" in new WithApplication{
             val req = FakeRequest(GET, "/json")
             val ret = route(req).get
             

@@ -17,10 +17,15 @@ class UserDataController extends Controller {
 
 //init a user data form ,to accept data from AddUser.html    
   val userDataForm: Form[NameRecord] = Form(
-    mapping(
+     mapping(
       "Name" -> nonEmptyText,                       //name can not be empty
       "Age" -> number.verifying(min(0), max(140)),   //age is between 0 and 140
-    )(NameRecord.apply)(NameRecord.unapply)
+      "Mail" -> nonEmptyText,
+      "Tel" -> nonEmptyText,
+      "Gender" -> nonEmptyText
+    )(NameRecord.apply)(NameRecord.unapply) verifying("Illegal input!", fields => fields match{
+         case input => NameRecord.validateNameRecord(input)
+     })
   )
 
 //use default Action

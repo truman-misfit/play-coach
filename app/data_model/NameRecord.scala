@@ -55,15 +55,49 @@ object NameRecord
     }
     
     implicit val locationReads: Reads[NameRecord] = (
-        
-    )(NameRecord.apply _)
+        (JsPath \ "name").read[String] and
+        (JsPath \ "age").read[Int] and
+        (JsPath \ "mail").read[String] and
+        (JsPath \ "tel").read[String] and
+        (JsPath \ "gender").read[String]
+    )(NameRecord.apply _).filter(validateNameRecord(_))
         
     implicit val placeWrites: Writes[NameRecord] = (
-        
+        (JsPath \ "name").write[String] and
+        (JsPath \ "age").write[Int] and
+        (JsPath \ "mail").write[String] and
+        (JsPath \ "tel").write[String] and
+        (JsPath \ "gender").write[String]
     )(unlift(NameRecord.unapply))
     
     //calidate function for form
     def validateNameRecord(record:NameRecord): Boolean = {
+        Logger.info("In validate func")
+        if(record.age < 0 || record.age > 140) return false
         
+        {
+            var atNum = 0
+            for(i <- 0 until record.mail.length if record.mail.charAt(i) == '@'){
+                atNum = atNum+1
+            }
+            if(atNum != 1) {
+                Logger.info("mail adress is not validate")
+                return false
+            }
+        }
+            
+        {
+            for(i <- 0 until record.tel.length)
+            {
+                if(false == record.tel.charAt(i).isDigit)return false
+            }
+        }
+        
+        
+        record.gender.toLowerCase match{
+            case "female" => true
+            case "male" => true
+            case _ => false
+        }
     }
 }
