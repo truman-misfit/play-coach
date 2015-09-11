@@ -2,7 +2,7 @@ language: scala
 scala:
    - 2.11.6
 env:
-- PLAY_VERSION=2.0.2
+- PLAY_VERSION=2.4.2
 
 before_script:
 - wget http://download.playframework.org/releases/play-${PLAY_VERSION}.zip
