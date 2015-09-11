@@ -1,7 +1,7 @@
 # play-coach
 
 # Intention
-This is internal play-coach project.A project for new employee training
+This is internal play-coach project.We use this tutorial to make a user age record system, based on Play framework.
 
 # Pre-install
 - Scala 2.11.6
@@ -9,51 +9,35 @@ This is internal play-coach project.A project for new employee training
 - sbt 0.13.8
 
 # Requirement
-- Tools and frameword in Pre-install.
-- Application will run on port 9000,so make sure this port is free.
-- If you want to change your port,use -Dhttp.port=1234 to run your app.Change 1234 to any port that you want to use:
-`./activity run -Dhttp.port=1234`
+- Tools in Pre-install
+- Play use 9000 as its default port, make sure this port is free for use
+- If you can not use port 9000,You can run this project from the console like this:
+`./activator run -Dhttp.port=1234`
+and then you can use 1234 port for http request
+- If you hang on 'Setting up Play fork run ... (use Ctrl+D to cancel)' when you try to run this project from console,
+change the value of 'fork in run' to false in build.sbt:
+`fork in run := false`
 
-# Git commit sample
-`git commit -m [MC-1506] add a request test case.`
+# Tutorial
+- step1:
+In this step, we need to know how Play framework work with action.We add a simple GET action to get user list, add a form page to add user, and an action to handle post data, and finally we add a LoggingAction to log all request
+See README_step1.md for further info.
+
+- step2:
+It may takes a long time to get all users' data if you have a lot of user, we add an async action in this step, to get all users' data
+In this step, we add an async action to handle long time calculation.Besides,we use a template to show the result.
+
+- step3:
+A user can have more data ,so NameRecrod with only name and age is not enought for us.Let's make it more complex.
+A Server should not lost user's data when it is shut down.We use json to save data on server,and load it when the server is on again.
+
 
 # Usage
-cd to the root of this project ,and run command:
-`./activator run`
-Or you can just run it from your IDE.
-
-Then you can use your browser to send request to app(if you use other port to run your app,change 9000 to that port):
-
-http://localhost:9000  
-Open the index.html.You can use the form to post a data to server,too.Just write some data in the inputbox,and push the TestPost button.
-
-http://localhost:9000/composeAction 
-This is a request for a composed action,you can see two logs if you set <root level> to "DEBUG" in play-coach/conf/logback.xml.
-
-http://localhost:9000/asynAction 
-This action will return after the server sleep for one second. You can use the follow one to set the sleep time,too.
-
-http://localhost:9000/asynAction?time=5000 
-This action will return after the server sleep for 5000 microsecond.Change 5000 to any time you want the server sleep.
-
-http://localhost:9000/json 
-Test the json parse function,see "getJsonValue" in  controllers/JsonController for more details.
-
-http://localhost:9000/addName/[name]/[age] 
-add (name,age) pair to the server's NameRecord list,and it returns the json string for the NameRecord Json module.
-
-http://localhost:9000/parseStr 
-parse the json string get from above.See parseStr in controllers/JsonController for more details.
-
-http://localhost:9000/jsonInHttp
-Demo for json parameter in http request.See sendJsonRequest in controllers/WSController and httpJsonReq in controllers/JsonController for more details.
+1 Enter this project
+2 run `./activator run`
+3 If you wanna use other port then 9000, use `./activator run -Dhttp.port=1234` instead.
+4 If you wanna test this project, run `./activator test`
+5 Don't forget to run test after each step.
 
 # Future
-Add a more complex route.
-Maybe we will implement this repo to a user-age managing system
-
-# Author:
-Truman.
-
-Contributor:
-John
+Save server data in a json file so I can load it at next time when the server is started.

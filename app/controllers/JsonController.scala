@@ -1,67 +1,42 @@
 package controllers
 
+import play.api._
 import play.api.mvc._
-import play.api.libs.json._
 
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
-import json_module._
-import play.api.Logger
+import data_model._
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.data.validation.Constraints._
 
-class JsonController extends Controller{
-  val parsedJsonValue = Json.parse("""
-  {
-      "key":"This is a json value",
-      "array":{
-        "keyInArray":"hello",
-        "key2InArray":"helloKey2"
-      }
-  }
-  """
-  )
-  
-  def getJsonValue = Action{
-    var retStr = ""
-    
-    //null field
-    val firstVal = (parsedJsonValue \ "key1").asOpt[String]
-    firstVal match{
-      case Some(jsval) => retStr += "ret is " + jsval + "for key1"
-      case None => retStr += "can not get value for key1"
+import play.api.Play.current
+import play.api.i18n._
+import play.api.i18n.Messages.Implicits._
+
+
+import play.api.libs.json._ // JSON library
+import play.api.libs.json.Reads._ // Custom validation helpers
+import play.api.libs.functional.syntax._ // Combinator syntax
+
+
+import actions._
+class JsonController extends Controller {
+    def getJson = LoggingAction{
+        Ok(NameRecord.toJson.toString)
     }
-    retStr += "\n"
     
-    //not null field
-    val secondVal = (parsedJsonValue \ "key").asOpt[String]
-    secondVal match{
-      case Some(jsval) => retStr += "ret is " + jsval + "for key"
-      case None => retStr += "can not get value for key"
+    def recvJson = LoggingAction{ request =>
+        Logger.info(request.body.toString)
+        val json = request.body.asJson.get.validate[NameRecord]
+            
+        json match{
+            case j : JsSuccess[NameRecord] => {
+                val ret = j.get
+                NameRecord.addName(ret.name,ret.age,ret.mail,ret.tel,ret.gender)
+                Ok("copy")
+            }
+            case e: JsError => {
+                Ok("data error!Can not add")
+            }
+        }
     }
-    Ok(retStr)
-  }
-  
-  var nameList :List[NameRecord] = Nil
-  def jsString :String = NameRecord.listToString(nameList)
-  
-  def addName(name: String,age: Int) = Action{request =>
-    val record = NameRecord(name,age)
-    nameList = nameList ::: List(record) 
-//    Ok(Json.toJson(nameList))
-    Ok("jsString is :" + jsString)
-  }
-  
-  def parseStr = Action{request =>
-    Ok(NameRecord.parseJsonValueIntoNameRecord(jsString))
-      
-  }
-  
-  def httpJsonReq = Action {request =>
-      val json = request.body.asJson.get    //JsValue
-      Logger.debug(request.body.toString)
-    //   Logger.debug("hello")
-      Logger.debug(json.toString)
-
-      Ok(NameRecord.parseJsonValueIntoNameRecord(json.toString))
-  }
-
 }
