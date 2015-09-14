@@ -3,6 +3,7 @@ import java.io.PrintWriter
 
 import play.api._
 import data_model._
+
 object Global extends GlobalSettings {
 
   override def onStart(app: Application) {
