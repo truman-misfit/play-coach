@@ -1,72 +1,68 @@
-# What to do in Step 1
-In this step ,we just init this project and see how play work.How play's controllers work.
-Clone the repo by:
-`git clone https://github.com/truman-misfit/play-coach.git`
-Then reset project to step 1. 
-```
+# What to do in Step 2
+In this step ,we will begin our RESTful play app design.Our final aim is to design a User Data system,which can get user's data, add user data, and query a special user's data.
+
+As we already know how play works, we will add a controller and an action to get user's data. When a client request to GET user's data,we return who is the user.
+For example, we query about Tom,and server return a string:"You query about Tom"
+
+Now reset project to step 2.
+```shell
 cd play-coach
-git checkout -f step1
+git checkout -f step2
 ```
 
 # How to do
-So we have a play project now.You can run this project by this command:
-`./activator run`
-Or you can start the Typesafe ui by:
-`./activator ui`
-and then run the app in the IDE.
-If all goes well ,you should see the following output:
-`Listening for HTTP on /0:0:0:0:0:0:0:0:9000`
+As we already know about how Play framework work,we first add a new route:
 
-Now you can visit `http://localhost:9000` in your broswer, you should get play's welcome page.
+In `conf/routes`:
 
-- How the app work
-When you visit `http://localhost:9000`, you actually access to `http://localhost:9000/`.If you see the routes in conf,you should see this:
-In `app/conf/routes`:
-`GET     /                           controllers.Application.index`
-So when you request '/', you call the index method in controllers.Application:
-In `controllers/Application`:
+`GET    	/user/:name					controllers.UserController.user(name:String)`
+
+This route means that we want to get a resource, which is one of user, and the name is [name].And this route will call controllers.UserController.user(name:String)
+
 ```
-def index = Action {
-  Ok(views.html.index("Your new application is ready."))
+What is the meaning of ':name'?
+':name' means this URI reads a string as a parameter called 'name'.
+So you can visit this URI like:
+'/user/Tom',this request will finally call to 'controllers.UserController.user("Tom")'
+
+```
+
+So we need a controller called 'UserController',who will have a method called 'user'.
+
+In controllers, create a new file called UserController.scala.Ctreate a new class called UserController:
+
+`class UserController extends Controller`
+
+This controller extends 'Controller',so it can be a 'Controller'.
+
+Then we add an action called 'user'
+
+In `controllers/UserController.scala`:
+```scala
+def user(name : String) = Action {
+  Ok(s"You query about: $name.")
 }
 ```
+This action accept a String as input ,and response with a String:"You query about: $name."
 
-Method index returns an Ok(views.html.index("Your new application is ready.")) to the client.
-You can find code about views.html.index in `app/views/index.scala.html`, this is a template, we will discuss about template in the following step.
+That's all, you can run you app to get a query now.
 
 # Testing
-Run this command to test if your app work right:
-`./activator test`
-If your app pass all test case , you will get an output just like the following one:
-`[success] Total time: 10 s, completed 2015-9-14 18:34:19`
-
-If you use TypeSafe IDE, you can use test in IDE instead.
-
-Test codes are under the 'test' dierectory,
-In `test/ApplicationSpec.scala`:
-```
-class ApplicationSpec extends Specification {
+In `test/UserSpec.scala`:
+```scala
+class UserSpec extends Specification {
 
   "Application" should {
-
-    "send 404 on a bad request" in new WithApplication{
-      route(FakeRequest(GET, "/boum")) must beSome.which (status(_) == NOT_FOUND)
-    }
-
-    "render the index page" in new WithApplication{
-      val home = route(FakeRequest(GET, "/")).get
+    "return a query result" in new WithApplication{
+      val home = route(FakeRequest(GET, "/user/Tom")).get
 
       status(home) must equalTo(OK)
-      contentType(home) must beSome.which(_ == "text/html")
-      contentAsString(home) must contain ("Your new application is ready.")
+      contentAsString(home) must contain ("You query about: Tom.")
     }
   }
 }
 ```
-In this test,it has two sample,one request for the '/boum' URI,which is not exist.So the returned status is NO_FOUND.
-And another test request for '/',which is the index.html,containing a message 'Your new application is ready.' . So the response should have a OK statue, and the content should contain a message:'Your new application is ready.'
-
+In this test,we expect the app return "You query about: Tom." when we visit a URI /user/Tom.
 
 # summary
-In this very first step, we know about how a Play app response to a request .
-
+In this step ,we learn about how to get a resource.
