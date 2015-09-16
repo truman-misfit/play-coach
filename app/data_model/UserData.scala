@@ -91,4 +91,8 @@ object UserData{
 		(JsPath \ "mail").write[String] and
 		(JsPath \ "gender").write[String]
 	)(unlift(UserData.unapply))
+
+	def addUser(user:UserData){
+		data = data + (user.name -> user)
+	}
 }

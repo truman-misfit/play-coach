@@ -1,117 +1,94 @@
-# What to do in Step 4
-Until now, we already have a UserData data type.It's time to convert it to a JSON value,so we can send a UserData as JSON value in a request.
+# What to do in Step 5
+As we can convert between JSON value and UserData now, we can now add request to add user data to our server now.
 
-Now reset project to step 4.
+As a RESTful system, we use POST method to add a resource.In this step, we add an action to handle post request,if all goes well,we add the user to our system.
+
+Now reset project to step 5.
 ```shell
 cd play-coach
-git checkout -f step4
+git checkout -f step5
 ```
 
 # How to do
-First we convert UserData to a JSON value:
+First of all ,add a new route:
 
-In `data_model/UserData.scala`
+In `conf/routes`
+
+`POST    /user                       controllers.UserController.addUser`
+
+Then add a new Action:
+
+In `controllers/UserController.scala`
 ```scala
-//from JSON to UserData
-implicit val userReads: Reads[UserData] = (
-  (JsPath \ "name").read[String] and
-  (JsPath \ "age").read[Int] and
-  (JsPath \ "tel").read[String] and
-  (JsPath \ "mail").read[String] and
-  (JsPath \ "gender").read[String]
-)(UserData.apply _).filter(_.jsonValidation)
+def addUser = Action {request =>
+  try{
+    val body = request.body
+    val jsonValue = body.asJson
+    jsonValue match{
+      case Some(jsonResult)  =>{
+        val jsonReadResult = jsonResult.validate[UserData]
+        jsonReadResult match{
+          case success:JsSuccess[UserData] => {
+              UserData.addUser(success.get)
+              Ok("Add a new user:" + success.get.name)
+            }
+         case e:JsError => Ok("Illegal argument!")
 
-//from UserData to JSON value
-implicit val userWrites: Writes[UserData] = (
-  (JsPath \ "name").write[String] and
-  (JsPath \ "age").write[Int] and
-  (JsPath \ "tel").write[String] and
-  (JsPath \ "mail").write[String] and
-  (JsPath \ "gender").write[String]
-)(unlift(UserData.unapply))
+         }
+      }
+      case None => Ok("Illegal argument!")
+    }
+  }
+  catch{
+    case e:IllegalArgumentException => Ok("Illegal argument!")
+  }
+
+}
 ```
-Play's JSON lib needs a implicit Reads[T] and implicit Writes[T] value to convert between JSON value and other data type.JsPath represents the location of data in a JsValue structure.
+It accept a request with JSON value, and convert the JSON value to UserData.
 
-In the Reads value ,there is a filter, use to check if the result is validated."jsonValidation" looks like :
+If everything goes well, add this user to UserData:
 
 In `data_model/UserData.scala`:
 ```scala
-def jsonValidation:Boolean = {
-  validation
+def addUser(user:UserData){
+  data = data + (user.name -> user)
 }
 ```
-Yes we just use the same method in last step to check if the data is validated.Of course you can rewrite this method.
-
-We can convert UserData to JSON value like this:
-```scala
-Json.toJson(UserData("Tom",10,"13245","Tom@123.com","male"))
-```
-Convert JSON value to UserData like this:
-```scala
-try{
-  val jsonResult = Json.parse("....").validate[UserData]
-  jsonResult match{
-      case j : JsSuccess[UserData] => {
-          val ret:UserData = j.get
-      }
-      case e: JsError => {
-          //handle error
-      }
-  }
-}
-catch{
-  case e:IllegalArgumentException => Logger.info("create fail")
-}
-```
-The validate[UserData] method in JsValue try to read the JsValue as a UserData,and return it as a JsSuccess[UserData] if everything goes well.
-
-We use try-catch here because the 'require' method called in class UserData throws an IllegalArgumentException if validation return false.
-
-
+When somebody post a /user ,we add a new user in our server if the data is validated.
+That's all.
 # Testing
-In `test/JSONSpec.scala`:
+In `test/UserSpec.scala`:
 ```scala
-class JsonSpec extends PlaySpec {
+"Receive and add user" in new WithApplication{
+  val jsonBody = Json.parse(
+  """
+    {"name":"Tim","age":10,"tel":"13245","mail":"Tom@123.com","gender":"male"}
+  """
+  )
+  val req = FakeRequest(POST, "/user").withJsonBody(jsonBody)
+  val jsonResult = route(req).get
 
-  "A JSON" must {
-    "Convert to UserData" in {
-			val json = Json.parse(
-			"""
-				{"name":"Tom","age":10,"tel":"13245","mail":"Tom@123.com","gender":"male"}
-			"""
-			)
-			val jsonResult = json.validate[UserData]
-			jsonResult.get mustBe UserData("Tom",10,"13245","Tom@123.com","male")
+  status(jsonResult) must equalTo(OK)
+  contentAsString(jsonResult) must contain ("Add")
+}
 
-			val jsonstr = Json.toJson(jsonResult.get).toString
-			jsonstr must include("Tom")
-			jsonstr must include("10")
-			jsonstr must include("13245")
+"return illegal argument" in new WithApplication{
+  val jsonBody = Json.parse(
+  """
+    {"name":"Tom","age":210,"tel":"13245","mail":"Tom@123.com","gender":"male"}
+  """
+  )
+  val req = FakeRequest(POST, "/user").withJsonBody(jsonBody)
+  val jsonResult = route(req).get
 
-    }
+  status(jsonResult) must equalTo(OK)
+  contentAsString(jsonResult) must contain ("Illegal argument")
 
-    "throw IllegalArgumentException if an illegal argument is used to create UserData" in {
-      a [IllegalArgumentException] must be thrownBy {
-				UserData("Tom",10,"13245","Tom@123.com","lmale")
-      }
-      a [IllegalArgumentException] must be thrownBy {
-				UserData("Tom",210,"13245","Tom@123.com","male")
-      }
-      a [IllegalArgumentException] must be thrownBy {
-				val json = Json.parse(
-				"""
-					{"name":"","age":10,"tel":"13245","mail":"Tom@123.com","gender":"male"}
-				"""
-				)
-				val jsonResult = json.validate[UserData]
-      }
-    }
-  }
 }
 ```
-In the first test,we test if we can convert between JSON value and UserData.
+In the first test,we post a request to add a new user named "Tim".This request can success because all arguments are validated.
 
-In the second test, we test about validation.When the data is not validated, throw an exception.
-
+In the second test, we are expected to get a response with "Illegal argument" because the age is too old.
 # summary
-In this step ,we make conversion between UserData and JSON value.
+In this step ,we add a post method to add user.
