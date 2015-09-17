@@ -14,12 +14,12 @@ In `data_model/UserData.scala`
 ```scala
 //from JSON to UserData
 implicit val userReads: Reads[UserData] = (
-  (JsPath \ "name").read[String] and
-  (JsPath \ "age").read[Int] and
-  (JsPath \ "tel").read[String] and
-  (JsPath \ "mail").read[String] and
-  (JsPath \ "gender").read[String]
-)(UserData.apply _).filter(_.jsonValidation)
+  (JsPath \ "name").read[String](minLength[String](2)) and
+  (JsPath \ "age").read[Int](min(1) keepAnd max(140)) and
+  (JsPath \ "tel").read[String](pattern("""(^\d+$)""".r)) and
+  (JsPath \ "mail").read[String](pattern("""(^\S+@[^@]+$)""".r)) and
+  (JsPath \ "gender").read[String](pattern("""(?i)(^(fe)?male$)""".r))
+)(UserData.apply _)
 
 //from UserData to JSON value
 implicit val userWrites: Writes[UserData] = (
@@ -32,15 +32,7 @@ implicit val userWrites: Writes[UserData] = (
 ```
 Play's JSON lib needs a implicit Reads[T] and implicit Writes[T] value to convert between JSON value and other data type.JsPath represents the location of data in a JsValue structure.
 
-In the Reads value ,there is a filter, use to check if the result is validated."jsonValidation" looks like :
-
-In `data_model/UserData.scala`:
-```scala
-def jsonValidation:Boolean = {
-  validation
-}
-```
-Yes we just use the same method in last step to check if the data is validated.Of course you can rewrite this method.
+In the Reads value ,we add some limit for the reading.
 
 We can convert UserData to JSON value like this:
 ```scala
@@ -72,16 +64,43 @@ We use try-catch here because the 'require' method called in class UserData thro
 In `test/JSONSpec.scala`:
 ```scala
 class JsonSpec extends PlaySpec {
-
   "A JSON" must {
-    "Convert to UserData" in {
+    "Convert to UserData for upper case Female" in {
+			val json = Json.parse(
+			"""
+				{"name":"Tom","age":10,"tel":"13245","mail":"Tom@123.com","gender":"Female"}
+			"""
+			)
+			val jsonResult = json.validate[UserData]
+			val strResult = jsonResult match{
+				case _:JsSuccess[UserData] => "success"
+				case _:JsError => "error"
+			}
+			strResult mustBe "success"
+    }
+
+    "Convert to UserData for lower case female" in {
+			val json = Json.parse(
+			"""
+				{"name":"Tom","age":10,"tel":"13245","mail":"Tom@123.com","gender":"female"}
+			"""
+			)
+			val jsonResult = json.validate[UserData]
+			val strResult = jsonResult match{
+				case _:JsSuccess[UserData] => "success"
+				case _:JsError => "error"
+			}
+			strResult mustBe "success"
+    }
+
+    "Convert to UserData for male" in {
 			val json = Json.parse(
 			"""
 				{"name":"Tom","age":10,"tel":"13245","mail":"Tom@123.com","gender":"male"}
 			"""
 			)
 			val jsonResult = json.validate[UserData]
-			jsonResult.get mustBe UserData("Tom",10,"13245","Tom@123.com","male")
+			jsonResult mustBe JsSuccess(UserData("Tom",10,"13245","Tom@123.com","male"))
 
 			val jsonstr = Json.toJson(jsonResult.get).toString
 			jsonstr must include("Tom")
@@ -90,28 +109,29 @@ class JsonSpec extends PlaySpec {
 
     }
 
-    "throw IllegalArgumentException if an illegal argument is used to create UserData" in {
+    "throw IllegalArgumentException" in {
       a [IllegalArgumentException] must be thrownBy {
 				UserData("Tom",10,"13245","Tom@123.com","lmale")
       }
       a [IllegalArgumentException] must be thrownBy {
 				UserData("Tom",210,"13245","Tom@123.com","male")
       }
-      a [IllegalArgumentException] must be thrownBy {
-				val json = Json.parse(
-				"""
-					{"name":"","age":10,"tel":"13245","mail":"Tom@123.com","gender":"male"}
-				"""
-				)
-				val jsonResult = json.validate[UserData]
-      }
+			val json = Json.parse(
+			"""
+				{"name":"","age":10,"tel":"13245","mail":"Tom@123.com","gender":"male"}
+			"""
+			)
+			val jsonResult = json.validate[UserData]
+			val strResult = jsonResult match{
+				case _:JsSuccess[UserData] => "success"
+				case _:JsError => "error"
+			}
+			strResult mustBe "error"
     }
   }
 }
 ```
-In the first test,we test if we can convert between JSON value and UserData.
-
-In the second test, we test about validation.When the data is not validated, throw an exception.
+We add some test to check json validation,and add some test to check UserData creating.Since it's not easy to check the validation result,we use a match-case to check if the validation is success or not.
 
 # summary
 In this step ,we make conversion between UserData and JSON value.
