@@ -25,15 +25,15 @@ class UserSpec extends Specification {
       status(home) must equalTo(OK)
       contentAsString(home) must contain ("You query about: Tom.")
     }
-		"return a string" in new WithApplication{
-			val res = route(FakeRequest(GET,"/users")).get
-
-      status(res) must equalTo(OK)
-
-      contentAsString(res) must contain ("Tom")
-      contentAsString(res) must contain ("gender")
-      contentAsString(res) must contain ("mail")
-		}
+//		"return a string" in new WithApplication{
+//			val res = route(FakeRequest(GET,"/users")).get
+//
+//      status(res) must equalTo(OK)
+//
+//      contentAsString(res) must contain ("Tom")
+//      contentAsString(res) must contain ("gender")
+//      contentAsString(res) must contain ("mail")
+//		}
 
 		"Receive and add user" in new WithApplication{
 			val jsonBody = Json.parse(
@@ -60,6 +60,44 @@ class UserSpec extends Specification {
 			status(jsonResult) must equalTo(BAD_REQUEST)
 			contentAsString(jsonResult) must contain ("Illegal argument")
 		
-		} 
+		}
+
+		"get a user list" in new WithApplication{
+			val res = route(FakeRequest(GET,"/users")).get
+
+      status(res) must equalTo(OK)
+
+      contentAsString(res) must contain ("Tom")
+		}
+
+		"get a bad request " in new WithApplication{
+			val res = route(FakeRequest(GET,"/users?page=1")).get
+
+      status(res) must equalTo(BAD_REQUEST)
+
+      contentAsString(res) must contain ("no such page")
+		}
+
+		"get second page" in new WithApplication{
+			for(i <- 1 to 10)
+			{
+				val jsonBody = Json.parse(
+				s"""
+					{"name":"Lion$i","age":10,"tel":"13245","mail":"Tom@123.com","gender":"male"}
+				"""
+				)
+				val req = FakeRequest(POST, "/user").withJsonBody(jsonBody)
+				val jsonResult = route(req).get
+				
+				status(jsonResult) must equalTo(OK)
+				contentAsString(jsonResult) must contain ("Add")
+			}
+			val res = route(FakeRequest(GET,"/users?page=1")).get
+
+      status(res) must equalTo(OK)
+
+      contentAsString(res) must contain ("Lion")
+      contentAsString(res) must contain ("mail")
+		}
 	}
 }
