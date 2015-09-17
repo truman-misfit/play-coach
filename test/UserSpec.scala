@@ -57,7 +57,7 @@ class UserSpec extends Specification {
 			val req = FakeRequest(POST, "/user").withJsonBody(jsonBody)
 			val jsonResult = route(req).get
 			
-			status(jsonResult) must equalTo(OK)
+			status(jsonResult) must equalTo(BAD_REQUEST)
 			contentAsString(jsonResult) must contain ("Illegal argument")
 		
 		} 

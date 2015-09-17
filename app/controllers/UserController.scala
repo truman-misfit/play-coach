@@ -30,15 +30,15 @@ class UserController extends Controller {
 							  UserData.addUser(success.get)
 							  Ok("Add a new user:" + success.get.name)
 							}
-						case e:JsError => Ok("Illegal argument!")
+						case e:JsError => BadRequest("Illegal argument!")
 
 					}
 				 }
-				case None => Ok("Illegal argument!")
+				case None => BadRequest("Illegal argument!")
 			}
 		}
 		catch{
-			case e:IllegalArgumentException => Ok("Illegal argument!")
+			case e:IllegalArgumentException => BadRequest("Illegal argument!")
 		}
 
 	}

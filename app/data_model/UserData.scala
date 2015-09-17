@@ -4,47 +4,31 @@ import play.api.libs.json._ // JSON library
 import play.api.libs.json.Reads._ // Custom validation helpers
 import play.api.libs.functional.syntax._ // Combinator syntax
 
-import play.api.Logger
-
 case class UserData(name:String, age:Int, tel:String, mail:String, gender:String)
 {
-	def isNameValidated:Boolean = (name.size != 0)
+	def nameValidated:Boolean = (name.size != 0)
 
-	def isAgeValidated:Boolean = (age > 0 && age <= 140)
+	def ageValidated:Boolean = (age > 0 && age <= 140)
 
-	def isMailValidated:Boolean =
+	def mailValidated:Boolean =
 	{
-		var atNum = 0
-		for(i <- 0 until mail.length if mail.charAt(i) == '@'){
-			atNum = atNum+1
-		}
-		if(atNum != 1) {
-			false
-		}
-		else
-		{
-			true
+		val mailPattern = """(^\S+@[^@]+$)""".r
+		mail match{
+			case mailPattern(_)	 => true
+			case _ => false
 		}
 	}
 
-	def isTelValidated:Boolean =
+	def telValidated:Boolean =
 	{
-		if(tel.size == 0){
-			false
+		val telPattern = """(^\d+$)""".r
+		tel match{
+			case telPattern(_) => true
+			case _ => false
 		}
-		else
-		{
-			var ret = true
-			for(i <- 0 until tel.length)
-			{
-				if(false == tel.charAt(i).isDigit)ret = false
-			}
-			ret
-		}
-
 	}
 
-	def isGenderValidated:Boolean =
+	def genderValidated:Boolean =
 	{
 		gender.toLowerCase match{
 			case "female" => true
@@ -53,13 +37,9 @@ case class UserData(name:String, age:Int, tel:String, mail:String, gender:String
 		}
 	}
 
-	def jsonValidation:Boolean = {
-		validation
-	}
-
 	def validation:Boolean =
 	{
-	  isNameValidated && isAgeValidated && isTelValidated && isMailValidated && isGenderValidated
+	  nameValidated && ageValidated && telValidated && mailValidated && genderValidated
 	}
 
 	require(validation)
@@ -73,15 +53,14 @@ object UserData{
 	  data.foreach(user => ret = ret + "Name:" + user._1 + ",gender:" + user._2.gender + ",tel:" + user._2.tel + ",mail:" + user._2.mail + "\n")
 		ret
 	}
-
   //from JSON to UserData
 	implicit val userReads: Reads[UserData] = (
-		(JsPath \ "name").read[String] and
-		(JsPath \ "age").read[Int] and
-		(JsPath \ "tel").read[String] and
-		(JsPath \ "mail").read[String] and
-		(JsPath \ "gender").read[String]
-	)(UserData.apply _).filter(_.jsonValidation)
+		(JsPath \ "name").read[String](minLength[String](2)) and
+		(JsPath \ "age").read[Int](min(1) keepAnd max(140)) and
+		(JsPath \ "tel").read[String](pattern("""(^\d+$)""".r)) and
+		(JsPath \ "mail").read[String](pattern("""(^\S+@[^@]+$)""".r)) and
+		(JsPath \ "gender").read[String](pattern("""(?i)(^(fe)?male$)""".r))
+	)(UserData.apply _)
 
   //from UserData to JSON value
 	implicit val userWrites: Writes[UserData] = (
