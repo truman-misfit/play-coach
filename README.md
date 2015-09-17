@@ -21,43 +21,29 @@ In `data_model/UserData.scala`,we add a method to test if the data is validate:
 ```scala
 case class UserData(name:String, age:Int, tel:String, mail:String, gender:String)
 {
-	def isNameValidated:Boolean = (name.size != 0)
+  def nameValidated:Boolean = (name.size != 0)
 
-	def isAgeValidated:Boolean = (age > 0 && age <= 140)
+	def ageValidated:Boolean = (age > 0 && age <= 140)
 
-	def isMailValidated:Boolean =
+	def mailValidated:Boolean =
 	{
-		var atNum = 0
-		for(i <- 0 until mail.length if mail.charAt(i) == '@'){
-			atNum = atNum+1
-		}
-		if(atNum != 1) {
-			false
-		}
-		else
-		{
-			true
+		val mailPattern = """(^\S+@[^@]+$)""".r
+		mail match{
+			case mailPattern(_)	 => true
+			case _ => false
 		}
 	}
 
-	def isTelValidated:Boolean =
+	def telValidated:Boolean =
 	{
-		if(tel.size == 0){
-			false
+		val telPattern = """(^\d+$)""".r
+		tel match{
+			case telPattern(_) => true
+			case _ => false
 		}
-		else
-		{
-			var ret = true
-			for(i <- 0 until tel.length)
-			{
-				if(false == tel.charAt(i).isDigit)ret = false
-			}
-			ret
-		}
-
 	}
 
-	def isGenderValidated:Boolean =
+	def genderValidated:Boolean =
 	{
 		gender.toLowerCase match{
 			case "female" => true
@@ -68,7 +54,7 @@ case class UserData(name:String, age:Int, tel:String, mail:String, gender:String
 
 	def validation:Boolean =
 	{
-	  isNameValidated && isAgeValidated && isTelValidated && isMailValidated && isGenderValidated
+	  nameValidated && ageValidated && telValidated && mailValidated && genderValidated
 	}
 
 	require(validation)
