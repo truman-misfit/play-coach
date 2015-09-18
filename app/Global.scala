@@ -1,7 +1,7 @@
 import javax.inject.Inject
 import play.api.http.HttpFilters
 
-import custom_filter._
+import customfilter._
 
 class Filters @Inject() (
   log: LoggingFilter

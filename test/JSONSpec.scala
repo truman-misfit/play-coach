@@ -1,4 +1,4 @@
-import data_model._
+import datamodel._
 import play.api.libs.json._ // JSON library
 import play.api.libs.json.Reads._ // Custom validation helpers
 import play.api.libs.functional.syntax._ // Combinator syntax

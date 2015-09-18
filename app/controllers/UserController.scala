@@ -6,11 +6,11 @@ import play.api.libs.json._ // JSON library
 import play.api.libs.json.Reads._ // Custom validation helpers
 import play.api.libs.functional.syntax._ // Combinator syntax
 
-import data_model._
+import datamodel._
 
 class UserController extends Controller {
 
-  def user(name : String) = Action {
+  def getUser(name : String) = Action {
     Ok(s"You query about: $name.")
   }
 

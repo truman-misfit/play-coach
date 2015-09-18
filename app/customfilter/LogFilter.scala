@@ -1,4 +1,4 @@
-package custom_filter
+package customfilter
 
 import play.api.Logger
 import play.api.mvc._
@@ -21,6 +21,7 @@ class LoggingFilter extends Filter {
         s"took ${requestTime}ms and returned ${result.header.status}")
 
       result.withHeaders("Request-Time" -> requestTime.toString)
+
     }
   }
 }
