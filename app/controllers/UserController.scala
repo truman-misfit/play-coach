@@ -14,6 +14,16 @@ class UserController extends Controller {
     Ok(s"You query about: $name.")
   }
 
+	def getUserList(page:Option[Int]) = Action {
+		val pageNum = page.getOrElse(0)
+		try{
+			Ok(UserData.getUserAtPage(pageNum))
+		}
+		catch{
+			case e:IllegalArgumentException => BadRequest("no such page")	
+		}
+	}
+
 	def getAllUsers = Action{
 		Ok(UserData.toString)
 	}

@@ -47,6 +47,7 @@ case class UserData(name:String, age:Int, tel:String, mail:String, gender:String
 
 object UserData{
 	var data:Map[String,UserData] = Map("Tom" -> UserData("Tom",10,"13245","Tom@123.com","male"))
+	var userIndex:List[String] = List("Tom")
 
 	override def toString = {
 		var ret = ""
@@ -72,6 +73,35 @@ object UserData{
 	)(unlift(UserData.unapply))
 
 	def addUser(user:UserData){
+		val savedData = data.get(user.name)
+		savedData match {
+			case Some(old) => //do nothing
+			case None => userIndex = userIndex ::: List(user.name)
+		}
 		data = data + (user.name -> user)
+	}
+
+	val recordInOnePage = 10
+
+	def getUserAtPage(pageNum:Int) =
+	{
+		if(userIndex.size / recordInOnePage <= pageNum - 1 ||
+			pageNum < 0)
+			throw new IllegalArgumentException
+
+		val beginIndex = pageNum * recordInOnePage
+		val endIndex = {
+			if((pageNum + 1) * recordInOnePage > userIndex.size)
+				userIndex.size
+			else
+				(pageNum + 1)* recordInOnePage
+		}
+
+		var ret = ""
+		for(index <- beginIndex until endIndex){
+			val userData = data.get(userIndex(index)).get
+			ret += userData.name + ",age:"+ userData.age + ",tel:" + userData.tel + ",mail:" + userData.mail + ",gender:" + userData.gender + "\n"
+		}
+		ret
 	}
 }

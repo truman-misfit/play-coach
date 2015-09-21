@@ -1,94 +1,113 @@
-# What to do in Step 5
-As we can convert between JSON value and UserData now, we can now add request to add user data to our server now.
+# What to do in Step 6
+We can add user, and get one single user,or all user now.You may also want to query a special list of users.
 
-As a RESTful system, we use POST method to add a resource.In this step, we add an action to handle post request,if all goes well,we add the user to our system.
+In this step, we create a page.Every page have 10 user data record.Add a route to query user data on special page.
 
-Now reset project to step 5.
+Now reset project to step 6.
 ```shell
 cd play-coach
-git checkout -f step5
+git checkout -f step6
 ```
 
 # How to do
-First of all ,add a new route:
+As usual, add a new route:
 
-In `conf/routes`
+`GET			/users											controllers.UserController.getUserList(page:Option[Int])`
+The page parameter is optional,default value is 0. Since we want to get a list of user, we use a GET method and 'users' URI.
 
-`POST    /user                       controllers.UserController.addUser`
+We just abort the getAllUser request, and use this route instead. It's not good to get all user's data if there are lots of users.
 
-Then add a new Action:
+And the code of getUserList:
 
-In `controllers/UserController.scala`
+In `app/controllers/UserController.scala`:
 ```scala
-def addUser = Action {request =>
+def getUserList(page:Option[Int]) = Action {
+  val pageNum = page.getOrElse(0)
   try{
-    val body = request.body
-    val jsonValue = body.asJson
-    jsonValue match{
-      case Some(jsonResult)  =>{
-        val jsonReadResult = jsonResult.validate[UserData]
-        jsonReadResult match{
-          case success:JsSuccess[UserData] => {
-              UserData.addUser(success.get)
-              Ok("Add a new user:" + success.get.name)
-            }
-         case e:JsError => Ok("Illegal argument!")
-
-         }
-      }
-      case None => Ok("Illegal argument!")
-    }
+    Ok(UserData.getUserAtPage(pageNum))
   }
   catch{
-    case e:IllegalArgumentException => Ok("Illegal argument!")
+    case e:IllegalArgumentException => BadRequest("no such page")
   }
-
 }
 ```
-It accept a request with JSON value, and convert the JSON value to UserData.
+The getUserAtPage method of UserData throw an IllegalArgumentException if the argument is too large or too little:
 
-If everything goes well, add this user to UserData:
-
-In `data_model/UserData.scala`:
+In `data_model/UserData.scala`
 ```scala
-def addUser(user:UserData){
-  data = data + (user.name -> user)
+var userIndex:List[String] = List("Tom")
+
+...
+
+val recordInOnePage = 10
+
+def getUserAtPage(pageNum:Int) =
+{
+  if(userIndex.size / recordInOnePage <= pageNum - 1 ||
+    pageNum < 0)
+    throw new IllegalArgumentException
+
+  val beginIndex = pageNum * recordInOnePage
+  val endIndex = {
+    if((pageNum + 1) * recordInOnePage > userIndex.size)
+      userIndex.size
+    else
+      (pageNum + 1)* recordInOnePage
+  }
+  var ret = ""
+  for(index <- beginIndex until endIndex){
+    ret += userData.name + ",age:"+ userData.age + ",tel:" + userData.tel + ",mail:" + userData.mail + ",gender:" + userData.gender + "\n"
+  }
+  ret
 }
 ```
-When somebody post a /user ,we add a new user in our server if the data is validated.
-That's all.
+To make it easier to get all user's data on a page, add a list to record new user's name.You can see more details in UserData.scala.
+
+This app is ready to query a list of users now.
+
+
 # Testing
 In `test/UserSpec.scala`:
 ```scala
-"Receive and add user" in new WithApplication{
-  val jsonBody = Json.parse(
-  """
-    {"name":"Tim","age":10,"tel":"13245","mail":"Tom@123.com","gender":"male"}
-  """
-  )
-  val req = FakeRequest(POST, "/user").withJsonBody(jsonBody)
-  val jsonResult = route(req).get
+"get a user list" in new WithApplication{
+   val res = route(FakeRequest(GET,"/users")).get
 
-  status(jsonResult) must equalTo(OK)
-  contentAsString(jsonResult) must contain ("Add")
+   status(res) must equalTo(OK)
+
+   contentAsString(res) must contain ("Tom")
 }
 
-"return illegal argument" in new WithApplication{
-  val jsonBody = Json.parse(
-  """
-    {"name":"Tom","age":210,"tel":"13245","mail":"Tom@123.com","gender":"male"}
-  """
-  )
-  val req = FakeRequest(POST, "/user").withJsonBody(jsonBody)
-  val jsonResult = route(req).get
+"get a bad request " in new WithApplication{
+   val res = route(FakeRequest(GET,"/users?page=1")).get
 
-  status(jsonResult) must equalTo(OK)
-  contentAsString(jsonResult) must contain ("Illegal argument")
+   status(res) must equalTo(BAD_REQUEST)
 
+   contentAsString(res) must contain ("no such page")
+}
+
+"get second page" in new WithApplication{
+   for(i <- 1 to 10)
+   {
+     val jsonBody = Json.parse(
+     s"""
+       {"name":"Lion$i","age":10,"tel":"13245","mail":"Tom@123.com","gender":"male"}
+     """
+     )
+     val req = FakeRequest(POST, "/user").withJsonBody(jsonBody)
+     val jsonResult = route(req).get
+
+     status(jsonResult) must equalTo(OK)
+     contentAsString(jsonResult) must contain ("Add")
+   }
+   val res = route(FakeRequest(GET,"/users?page=1")).get
+
+   status(res) must equalTo(OK)
+
+   contentAsString(res) must contain ("Lion")
+   contentAsString(res) must contain ("mail")
 }
 ```
-In the first test,we post a request to add a new user named "Tim".This request can success because all arguments are validated.
+There are three test case for this step.First one test if this route work.Second one test if it can get an error if the page parameter is too large.The last one test if page parameter work .
 
-In the second test, we are expected to get a response with "Illegal argument" because the age is too old.
 # summary
-In this step ,we add a post method to add user.
+In this step ,we add an action to query a list of user.
