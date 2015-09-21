@@ -53,4 +53,22 @@ object UserData{
 	  data.foreach(user => ret = ret + "Name:" + user._1 + ",gender:" + user._2.gender + ",tel:" + user._2.tel + ",mail:" + user._2.mail + "\n")
 		ret
 	}
+	//from JSON to UserData
+	implicit val userReads: Reads[UserData] = (
+		(JsPath \ "name").read[String](minLength[String](2)) and
+		(JsPath \ "age").read[Int](min(1) keepAnd max(140)) and
+		(JsPath \ "tel").read[String](pattern("""(^\d+$)""".r)) and
+		(JsPath \ "mail").read[String](pattern("""(^\S+@[^@]+$)""".r)) and
+		(JsPath \ "gender").read[String](pattern("""(?i)(^(fe)?male$)""".r))
+	)(UserData.apply _)
+
+	//from UserData to JSON value
+	implicit val userWrites: Writes[UserData] = (
+		(JsPath \ "name").write[String] and
+		(JsPath \ "age").write[Int] and
+		(JsPath \ "tel").write[String] and
+		(JsPath \ "mail").write[String] and
+		(JsPath \ "gender").write[String]
+	)(unlift(UserData.unapply))
+
 }

@@ -1,120 +1,137 @@
-# What to do in Step 3
-In step 2, we already added an action to query a user's data.But we don't have any data ,yet. So, it's time for us to add a data struct, to save user's data.As we use JSON value to transform data, it's important to serialize this data struct as a JSON value,too.
+# What to do in Step 4
+Until now, we already have a UserData data type.It's time to convert it to a JSON value,so we can send a UserData as JSON value in a request.
 
-Now reset project to step 3.
+Now reset project to step 4.
 ```shell
 cd play-coach
-git checkout -f step3
+git checkout -f step4
 ```
 
 # How to do
-Add a new directory named 'data_model' ,and a new file named 'UserData.scala' under this folder.
+First we convert UserData to a JSON value:
 
-In `data_model/UserData.scala`, create a new class:
+In `data_model/UserData.scala`
 ```scala
-case class UserData(name:String, age:Int, tel:String, mail:String, gender:String)
+//from JSON to UserData
+implicit val userReads: Reads[UserData] = (
+  (JsPath \ "name").read[String](minLength[String](2)) and
+  (JsPath \ "age").read[Int](min(1) keepAnd max(140)) and
+  (JsPath \ "tel").read[String](pattern("""(^\d+$)""".r)) and
+  (JsPath \ "mail").read[String](pattern("""(^\S+@[^@]+$)""".r)) and
+  (JsPath \ "gender").read[String](pattern("""(?i)(^(fe)?male$)""".r))
+)(UserData.apply _)
+
+//from UserData to JSON value
+implicit val userWrites: Writes[UserData] = (
+  (JsPath \ "name").write[String] and
+  (JsPath \ "age").write[Int] and
+  (JsPath \ "tel").write[String] and
+  (JsPath \ "mail").write[String] and
+  (JsPath \ "gender").write[String]
+)(unlift(UserData.unapply))
 ```
-So we can save user data as UserData now.It will contain five fields:name,age,tel,mail,and gender.
-And we make some require for this Data struct,like ,name should not be empty, age is between 1 and 140(Including 1 and 140), telephone numbers should contain only number,a mail address should contain one and only one '@'.
+Play's JSON lib needs a implicit Reads[T] and implicit Writes[T] value to convert between JSON value and other data type.JsPath represents the location of data in a JsValue structure.
 
-In `data_model/UserData.scala`,we add a method to test if the data is validate:
+In the Reads value ,we add some limit for the reading.
+
+We can convert UserData to JSON value like this:
 ```scala
-case class UserData(name:String, age:Int, tel:String, mail:String, gender:String)
-{
-  def nameValidated:Boolean = (name.size != 0)
-
-	def ageValidated:Boolean = (age > 0 && age <= 140)
-
-	def mailValidated:Boolean =
-	{
-		val mailPattern = """(^\S+@[^@]+$)""".r
-		mail match{
-			case mailPattern(_)	 => true
-			case _ => false
-		}
-	}
-
-	def telValidated:Boolean =
-	{
-		val telPattern = """(^\d+$)""".r
-		tel match{
-			case telPattern(_) => true
-			case _ => false
-		}
-	}
-
-	def genderValidated:Boolean =
-	{
-		gender.toLowerCase match{
-			case "female" => true
-			case "male" => true
-			case _ => false
-		}
-	}
-
-	def validation:Boolean =
-	{
-	  nameValidated && ageValidated && telValidated && mailValidated && genderValidated
-	}
-
-	require(validation)
+Json.toJson(UserData("Tom",10,"13245","Tom@123.com","male"))
+```
+Convert JSON value to UserData like this:
+```scala
+try{
+  val jsonResult = Json.parse("....").validate[UserData]
+  jsonResult match{
+      case j : JsSuccess[UserData] => {
+          val ret:UserData = j.get
+      }
+      case e: JsError => {
+          //handle error
+      }
+  }
+}
+catch{
+  case e:IllegalArgumentException => Logger.info("create fail")
 }
 ```
+The validate[UserData] method in JsValue try to read the JsValue as a UserData,and return it as a JsSuccess[UserData] if everything goes well.
 
-A server should save lots of user's data, so we need a Map to save all user's data.And for convenience,we add a companion object for UserData
+We use try-catch here because the 'require' method called in class UserData throws an IllegalArgumentException if validation return false.
 
-In `data_model/UserData.scala`:
-```scala
-object UserData{
-  var data:Map[String,UserData] = Map("Tom" -> UserData("Tom",10,"13245","Tom@123.com","male"))
- ...
- }
-```
-Init the data map with a new user,"Tom". We don't have any way to add user now,so just init the data map with a user.You can use `Map[String,UserData].empty` to init an empty map.
-
-We can save our user's data on server now.Let's add a request to get all user's data.
-First we add a new route:
-
-In `conf/routes`
-
-`GET     /users                      controllers.UserController.getAllUsers`
-
-This URI allow us to get users on server.
-
-Then add a new action in UserController:
-
-In `app/controllers/UserController`
-```scala
-def getAllUsers = Action{
-  Ok(UserData.toString)
-}
-```
-
-The toString method in object UserData looks like this:
-```scala
-override def toString = {
-  var ret = ""
-  data.foreach(user => ret = ret + "Name:" + user._1 + ",gender:" + user._2.gender + ",tel:" + user._2.tel + ",mail:" + user._2.mail + "\n")
-  ret
-}
-```
 
 # Testing
-In `test/UserSpec.scala`:
+In `test/JSONSpec.scala`:
 ```scala
-"return a string" in new WithApplication{
-  val res = route(FakeRequest(GET,"/users")).get
+class JsonSpec extends PlaySpec {
+  "A JSON" must {
+    "Convert to UserData for upper case Female" in {
+			val json = Json.parse(
+			"""
+				{"name":"Tom","age":10,"tel":"13245","mail":"Tom@123.com","gender":"Female"}
+			"""
+			)
+			val jsonResult = json.validate[UserData]
+			val strResult = jsonResult match{
+				case _:JsSuccess[UserData] => "success"
+				case _:JsError => "error"
+			}
+			strResult mustBe "success"
+    }
 
-  status(res) must equalTo(OK)
+    "Convert to UserData for lower case female" in {
+			val json = Json.parse(
+			"""
+				{"name":"Tom","age":10,"tel":"13245","mail":"Tom@123.com","gender":"female"}
+			"""
+			)
+			val jsonResult = json.validate[UserData]
+			val strResult = jsonResult match{
+				case _:JsSuccess[UserData] => "success"
+				case _:JsError => "error"
+			}
+			strResult mustBe "success"
+    }
 
-  contentAsString(res) must contain ("Tom")
-  contentAsString(res) must contain ("gender")
-  contentAsString(res) must contain ("mail")
+    "Convert to UserData for male" in {
+			val json = Json.parse(
+			"""
+				{"name":"Tom","age":10,"tel":"13245","mail":"Tom@123.com","gender":"male"}
+			"""
+			)
+			val jsonResult = json.validate[UserData]
+			jsonResult mustBe JsSuccess(UserData("Tom",10,"13245","Tom@123.com","male"))
 
+			val jsonstr = Json.toJson(jsonResult.get).toString
+			jsonstr must include("Tom")
+			jsonstr must include("10")
+			jsonstr must include("13245")
+
+    }
+
+    "throw IllegalArgumentException" in {
+      a [IllegalArgumentException] must be thrownBy {
+				UserData("Tom",10,"13245","Tom@123.com","lmale")
+      }
+      a [IllegalArgumentException] must be thrownBy {
+				UserData("Tom",210,"13245","Tom@123.com","male")
+      }
+			val json = Json.parse(
+			"""
+				{"name":"","age":10,"tel":"13245","mail":"Tom@123.com","gender":"male"}
+			"""
+			)
+			val jsonResult = json.validate[UserData]
+			val strResult = jsonResult match{
+				case _:JsSuccess[UserData] => "success"
+				case _:JsError => "error"
+			}
+			strResult mustBe "error"
+    }
+  }
 }
-
 ```
-As we already have a user named "Tom", so our request should return Tom's data.
+We add some test to check json validation,and add some test to check UserData creating.Since it's not easy to check the validation result,we use a match-case to check if the validation is success or not.
 
 # summary
-In this step ,we design the UserData data struct.
+In this step ,we make conversion between UserData and JSON value.
