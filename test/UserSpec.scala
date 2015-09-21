@@ -20,5 +20,16 @@ class UserSpec extends Specification {
       status(home) must equalTo(OK)
       contentAsString(home) must contain ("You query about: Tom.")
     }
+    "return a string" in new WithApplication{
+      val res = route(FakeRequest(GET,"/users")).get
+
+      status(res) must equalTo(OK)
+
+      contentAsString(res) must contain ("Tom")
+      contentAsString(res) must contain ("gender")
+      contentAsString(res) must contain ("mail")
+
+    }
+
   }
 }
