@@ -71,4 +71,7 @@ object UserData{
 		(JsPath \ "gender").write[String]
 	)(unlift(UserData.unapply))
 
+	def addUser(user:UserData){
+		data = data + (user.name -> user)
+	}
 }

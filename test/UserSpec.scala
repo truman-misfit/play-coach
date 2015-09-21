@@ -5,6 +5,11 @@ import org.junit.runner._
 import play.api.test._
 import play.api.test.Helpers._
 
+import play.api.libs.json._ // JSON library
+import play.api.libs.json.Reads._ // Custom validation helpers
+import play.api.libs.functional.syntax._ // Combinator syntax
+
+
 /**
  * Add your spec here.
  * You can mock out a whole application including requests, plugins etc.
@@ -27,7 +32,33 @@ class UserSpec extends Specification {
       contentAsString(res) must contain ("Tom")
       contentAsString(res) must contain ("gender")
       contentAsString(res) must contain ("mail")
-
 		}
-  }
+
+		"Receive and add user" in new WithApplication{
+			val jsonBody = Json.parse(
+			"""
+				{"name":"Tim","age":10,"tel":"13245","mail":"Tom@123.com","gender":"male"}
+			"""
+			)
+			val req = FakeRequest(POST, "/user").withJsonBody(jsonBody)
+			val jsonResult = route(req).get
+			
+			status(jsonResult) must equalTo(OK)
+			contentAsString(jsonResult) must contain ("Add")
+		}
+
+		"return illegal argument" in new WithApplication{
+			val jsonBody = Json.parse(
+			"""
+				{"name":"Tom","age":210,"tel":"13245","mail":"Tom@123.com","gender":"male"}
+			"""
+			)
+			val req = FakeRequest(POST, "/user").withJsonBody(jsonBody)
+			val jsonResult = route(req).get
+			
+			status(jsonResult) must equalTo(BAD_REQUEST)
+			contentAsString(jsonResult) must contain ("Illegal argument")
+		
+		} 
+	}
 }
